@@ -1,0 +1,11 @@
+program var some begin
+float a, b;
+float c;
+a := 5;
+b := 34435.34523e+8;
+c := a / b
+if (a<=b) begin
+a := b
+int g;
+end else b == 8
+end

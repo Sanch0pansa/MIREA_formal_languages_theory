@@ -1,0 +1,135 @@
+{
+  "IN": {
+    "[a-zA-Z]": ["ID", "acc", true],
+    "[0-1]": ["NUM_BIN", "acc", true],
+    "[2-7]": ["NUM_OCT", "acc", true],
+    "[8-9]": ["NUM_DEC", "acc", true],
+    "\\.": ["FRAC", "acc", true],
+    "=": ["EQ", "acc", true],
+    "<": ["EQ", "acc", true],
+    ">": ["EQ", "acc", true],
+    ":": ["EQ", "acc", true],
+    "&": ["AND", "acc", true],
+    "\\|": ["OR", "acc", true],
+    "!": ["EQ", "acc", true],
+    "\\s": ["IN", "no_command", true],
+    "\\{|\\}|\\[|\\]|\\(|\\)|\\;|\\,|\\/|\\+|\\-|\\*": ["IN", "acc,add_limiter", true],
+    ".": ["ERR", "error", false, "Неверный символ: $s!"]
+  },
+  "ID": {
+    "[a-zA-Z0-9]": ["ID", "acc", true],
+    ".": ["IN", "add_identifier", false]
+  },
+  "NUM_BIN": {
+    "[0-1]": ["NUM_BIN", "acc", true],
+    "[2-7]": ["NUM_OCT", "acc", true],
+    "[8-9]": ["NUM_DEC", "acc", true],
+    "e|E": ["HEX_OR_EXP0", "acc", true],
+    "b|B": ["NUM_BIN_END_OK", "acc", true],
+    "d|D": ["NUM_DEC_END_OK", "acc", true],
+    "[a-fA-F]": ["NUM_HEX", "acc", true],
+    "\\.": ["FRAC", "acc", true],
+    "o|O": ["IN", "acc,add_number", true],
+    "h|H": ["IN", "acc,add_number", true],
+    ".": ["IN", "add_number", false]
+  },
+  "NUM_OCT": {
+    "[0-7]": ["NUM_OCT", "acc", true],
+    "[8-9]": ["NUM_DEC", "acc", true],
+    "e|E": ["HEX_OR_EXP0", "acc", true],
+    "b|B": ["NUM_BIN_END_ERR", "acc", true],
+    "d|D": ["NUM_DEC_END_OK", "acc", true],
+    "[a-fA-F]": ["NUM_HEX", "acc", true],
+    "\\.": ["FRAC", "acc", true],
+    "o|O": ["IN", "acc,add_number", true],
+    "h|H": ["IN", "acc,add_number", true],
+    ".": ["IN", "add_number", false]
+  },
+  "NUM_DEC": {
+    "[0-9]": ["NUM_DEC", "acc", true],
+    "e|E": ["HEX_OR_EXP0", "acc", true],
+    "b|B": ["NUM_BIN_END_ERR", "acc", true],
+    "d|D": ["NUM_DEC_END_OK", "acc", true],
+    "[a-fA-F]": ["NUM_HEX", "acc", true],
+    "\\.": ["FRAC", "acc", true],
+    "o|O": ["ERR", "error", false, "Недопустимое значение восьмеричного числа!"],
+    "h|H": ["IN", "acc,add_number", true],
+    ".": ["IN", "add_number", false]
+  },
+  "NUM_HEX": {
+    "b|B": ["NUM_BIN_END_ERR", "acc", true],
+    "d|D": ["NUM_DEC_END_ERR", "acc", true],
+    "[0-9a-fA-F]": ["NUM_HEX", "acc", true],
+    "o|O": ["ERR", "error", false, "Недопустимое значение восьмеричного числа!"],
+    "h|H": ["IN", "acc,add_number", true],
+    "\\.": ["ERR", "error", false, "Шестнадцатеричное число не может иметь дробную часть!"],
+    ".": ["ERR", "error", false, "Недопустимая запись шестнадцатеричного числа: $acc!"]
+  },
+  "NUM_BIN_END_OK": {
+    "[0-9a-fA-F]": ["NUM_HEX", "acc", true],
+    "[f-zF-Z]": ["ERR", "error", false, "Недопустимая запись числа!"],
+    ".": ["IN", "add_number", false]
+  },
+  "NUM_DEC_END_OK": {
+    "[0-9a-fA-F]": ["NUM_HEX", "acc", true],
+    "[f-zF-Z]": ["ERR", "error", false, "Недопустимая запись числа!"],
+    ".": ["IN", "add_number", false]
+  },
+  "NUM_BIN_END_ERR": {
+    "[0-9a-fA-F]": ["NUM_HEX", "acc", true],
+    ".": ["ERR", "error", false, "Недопустимое значение двоичного числа!"]
+  },
+  "NUM_DEC_END_ERR": {
+    "[0-9a-fA-F]": ["NUM_HEX", "acc", true],
+    ".": ["ERR", "error", false, "Недопустимое значение десятичного числа!"]
+  },
+  "HEX_OR_EXP0": {
+    "[0-9]": ["HEX_OR_EXP", "acc", true],
+    "[a-fA-F]": ["NUM_HEX", "acc", true],
+    "\\+|-": ["EXP0", "acc", true],
+    ".": ["ERR", "error", false, "Неверная запись числа!"]
+  },
+  "HEX_OR_EXP": {
+    "[0-9]": ["HEX_OR_EXP", "acc", true],
+    "[a-fA-F]": ["NUM_HEX", "acc", true],
+    "\\+|-": ["EXP0", "acc", true],
+    "[g-zG-Z]": ["ERR", "error", false, "Неверная запись числа!"],
+    ".": ["IN", "add_number", false]
+  },
+  "FRAC": {
+    "[0-9]": ["FRAC", "acc", true],
+    "e|E": ["EXP_S", "acc", true],
+    "[a-zA-Z]": ["ERR", "error", false, "Неверная запись числа!"],
+    "\\.": ["ERR", "error", false, "Неверная запись числа!"],
+    ".": ["IN", "add_number", false]
+  },
+  "EXP0": {
+    "[0-9]": ["EXP", "acc", true],
+    ".": ["ERR", "error", false, "Порядок числа должен содержать цифры!"]
+  },
+  "EXP": {
+    "[0-9]": ["EXP", "acc", true],
+    "[a-zA-Z]": ["ERR", "error", false, "Неверная запись числа!"],
+    "\\.": ["ERR", "error", false, "Порядок числа не может быть дробным!"],
+    ".": ["IN", "add_number", false]
+  },
+  "EXP_S": {
+    "[0-9]": ["EXP", "acc", true],
+    "\\+|-": ["EXP0", "acc", true],
+    "[a-zA-Z]": ["ERR", "error", false, "Неверная запись числа!"],
+    "\\.": ["ERR", "error", false, "Неверная запись числа!"],
+    ".": ["IN", "add_number", false]
+  },
+  "EQ": {
+    "\\=": ["IN", "acc,add_limiter", true],
+    ".": ["IN", "add_limiter", false]
+  },
+  "AND": {
+    "\\&": ["IN", "acc,add_limiter", true],
+    ".": ["IN", "add_limiter", false]
+  },
+  "OR": {
+    "\\|": ["IN", "acc,add_limiter", true],
+    ".": ["IN", "add_limiter", false]
+  }
+}
