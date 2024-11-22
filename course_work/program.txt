@@ -1,0 +1,7 @@
+program var int some begin
+;
+;
+;
+;
+;
+end

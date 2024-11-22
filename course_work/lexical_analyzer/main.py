@@ -39,9 +39,6 @@ import re
 комменты - { }
 """
 
-with open("program.txt") as f:
-    text = f.read().replace("\n", " ") + " "
-
 lexical_table = {
     "keywords": ["true", "false", "program", "var", "end", "begin", "int", "float", "bool", "if", "else", "for", "to",
                  "step", "next", "while", "readln", "writeln"],
@@ -51,13 +48,13 @@ lexical_table = {
 }
 
 class Lexer:
-    def __init__(self, string):
+    def __init__(self, string, states_file: str):
         self.string = string
         self.state = "IN"
         self.accumulator = ""
         self.pointer = 0
         self.finished = False
-        self.states = json.load(open("states.json", encoding="utf-8"))
+        self.states = json.load(open(states_file, encoding="utf-8"))
         self.chain = []
 
     def handle_symbol(self):
@@ -125,11 +122,3 @@ class Lexer:
         self.finished = True
 
 
-m = Lexer(text)
-while not m.finished:
-    m.handle_symbol()
-
-with open("lexical_chain.json", "w") as f:
-    f.write(
-        json.dumps(m.chain, indent=4)
-    )
