@@ -79,7 +79,11 @@ class SyntaxAnalyzer:
             self.read_next_lexeme()
         else:
             self.raise_exception("Неверное начало описания!")
+
         self.func_description()
+        while self.check_current_lexeme(LexemeType.LIM_SEMICOLON):
+            self.read_next_lexeme()
+            self.func_description()
 
         if self.check_current_lexeme(LexemeType.K_BEGIN):
             self.read_next_lexeme()
@@ -209,22 +213,31 @@ class SyntaxAnalyzer:
         if self.check_current_lexeme(LexemeType.K_READLN):
             self.read_next_lexeme()
         else:
-            self.raise_exception(f"Неверное начало описания!")
+            self.raise_exception(f"Неверное начало оператора ввода!")
 
         if self.check_current_lexeme(LexemeType.IDENTIFIER):
             self.read_next_lexeme()
         else:
-            self.raise_exception("Неверное объявление типов!")
+            self.raise_exception("Оператор ввода должен принимать идентификаторы!")
 
         while self.check_current_lexeme(LexemeType.LIM_COMMA):
             self.read_next_lexeme()
             if self.check_current_lexeme(LexemeType.IDENTIFIER):
                 self.read_next_lexeme()
             else:
-                self.raise_exception("Неверное объявление типов!")
+                self.raise_exception("Оператор ввода должен принимать идентификаторы!")
 
     def func_write(self):
-        pass
+        if self.check_current_lexeme(LexemeType.K_WRITELN):
+            self.read_next_lexeme()
+        else:
+            self.raise_exception(f"Неверное начало оператора вывода!")
+
+        self.func_expression()
+
+        while self.check_current_lexeme(LexemeType.LIM_COMMA):
+            self.read_next_lexeme()
+            self.func_expression()
 
     def func_expression(self):
         self.func_operand()

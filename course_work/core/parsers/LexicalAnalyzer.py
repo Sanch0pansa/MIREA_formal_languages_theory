@@ -1,4 +1,4 @@
-from course_work.core.FiniteStateMachine import FiniteStateMachine, FiniteStateMachineException
+from course_work.core.models.FiniteStateMachine import FiniteStateMachine
 from course_work.core.data.LexicalTable import LexicalTable
 from course_work.core.data.LexicalChain import LexicalChain
 
