@@ -1,44 +1,43 @@
-from parser.main import (
-    LexicalTable,
-    LexicalChain,
-    read_lexical_table_from_json,
-    read_lexical_chain_from_json,
-    SyntaxParser
-)
+from course_work.core.LexicalAnalyzer import LexicalAnalyzer
+from course_work.core.SyntaxAnalyzer import SyntaxAnalyzer, SyntaxException
 import json
-from lexical_analyzer.main import Lexer, lexical_table
+
+
+lexical_table = {
+    "keywords": ["true", "false", "program", "var", "end", "begin", "int", "float", "bool", "if", "else", "for", "to",
+                 "step", "next", "while", "readln", "writeln"],
+    "limiters": ["!=", "==", "<", "<=", ">", ">=", "+", "-", "||", "*", "/", "&&", ",", "!", ";", "(", ")", "[", "]", "{", "}", ":="],
+    "numbers": [],
+    "identifiers": [],
+}
+
 
 if __name__ == "__main__":
 
     with open("./program.txt") as f:
         text = f.read().replace("\n", " ") + " "
 
-    m = Lexer(text, "./lexical_analyzer/states.json")
-    while not m.finished:
-        m.handle_symbol()
+    with open("./lexical_analyzer/states.json") as f:
+        states = json.load(f)
 
-    with open("./lexical_chain.json", "w") as f:
-        f.write(
-            json.dumps(m.chain, indent=4)
-        )
-
-    with open("./lexical_table.json", "w") as f:
-        f.write(
-            json.dumps(lexical_table, indent=4)
-        )
-
-    lt = LexicalTable(
-        read_lexical_table_from_json("./lexical_table.json")
+    m = LexicalAnalyzer(
+        text,
+        states,
+        lexical_table
     )
 
-    lc = LexicalChain(
-        read_lexical_chain_from_json("./lexical_chain.json"),
-        lt,
+    m.run()
+
+    with open("./lexical_analyzer/lexical_chain1.json", "w") as f:
+        json.dump(m.lexical_chain.chain, f, indent=4)
+
+    p = SyntaxAnalyzer(
+        m.lexical_table,
+        m.lexical_chain,
     )
 
-    p = SyntaxParser(
-        lt,
-        lc,
-    )
-
-    p.parse()
+    try:
+        p.parse()
+    except SyntaxException as e:
+        print(e.message)
+        print(e.lexeme)

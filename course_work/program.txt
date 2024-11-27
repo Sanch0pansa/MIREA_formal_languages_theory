@@ -1,7 +1,10 @@
-program var int some begin
-;
-;
-;
-;
-;
+program var int a, b, c, d begin
+a := b + b + (a * c) + b + ();
+if (a == b) begin
+    c := 78;
+    b := 90
+end;
+begin
+    a := 89
+end
 end

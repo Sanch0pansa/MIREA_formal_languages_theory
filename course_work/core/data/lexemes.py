@@ -57,10 +57,10 @@ class LexemeType(Enum):
 
 # Lexeme table type enum (first number of lexeme, number of table)
 class LexemeTableType(Enum):
-    KEYWORDS = 0
-    LIMITERS = 1
-    NUMBERS = 2
-    IDENTIFIERS = 3
+    KEYWORDS = 1
+    LIMITERS = 2
+    NUMBERS = 3
+    IDENTIFIERS = 4
 
 
 # Class, representing lexeme
@@ -68,3 +68,4 @@ class LexemeTableType(Enum):
 class Lexeme:
     lexeme_value: str           # String value of lexeme
     lexeme_type: LexemeType     # Lexeme type
+    lexeme_pointer: int | None  # Pointer of lexeme in original program text
