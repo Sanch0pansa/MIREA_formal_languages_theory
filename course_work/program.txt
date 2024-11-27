@@ -1,5 +1,5 @@
-program var int a, b, c, d begin
-a := b + b + (a * c) + b + ();
+program var int a, b, c, d; float k, l, m, n; bool h; int u begin
+a := b + b + (a * c) + b + (0);
 if (a == b) begin
     c := 78;
     b := 90

@@ -1,5 +1,5 @@
-from course_work.core.LexicalAnalyzer import LexicalAnalyzer
-from course_work.core.SyntaxAnalyzer import SyntaxAnalyzer, SyntaxException
+from course_work.core.parsers.LexicalAnalyzer import LexicalAnalyzer
+from course_work.core.parsers.SyntaxAnalyzer import SyntaxAnalyzer, SyntaxException
 import json
 
 
