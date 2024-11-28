@@ -8,6 +8,7 @@ class VariableType(Enum):
     TYPE_FLOAT = "float"
     TYPE_BOOL = "bool"
 
+
 # Class for variable
 @dataclass
 class Variable:

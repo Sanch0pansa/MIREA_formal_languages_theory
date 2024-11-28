@@ -1,7 +1,8 @@
-from win32file import TF_REUSE_SOCKET
+from _ast import Expression
 
 from course_work.core.data.variables import Variable, VariableType
 from course_work.core.data.lexemes import LexemeType, Lexeme
+
 
 class ASTException(Exception):
     def __init__(self, message: str, lexeme: Lexeme | None = None, *args):
@@ -27,7 +28,7 @@ class Node:
 
 class ProgramNode(Node):
     description_nodes: list["DescriptionNode"] = []
-    operator_nodes: list[type["OperatorNode"]] = []
+    operator_nodes: list["OperatorNode"] = []
 
     def add_description_node(self, description_node):
         self.description_nodes.append(description_node)
@@ -62,7 +63,7 @@ class OperatorNode(Node):
 
 
 class CompositeOperatorNode(OperatorNode):
-    operator_nodes: list[type["OperatorNode"]] = []
+    operator_nodes: list["OperatorNode"] = []
 
     def add_operator_node(self, operator_node):
         self.operator_nodes.append(operator_node)
@@ -72,32 +73,106 @@ class CompositeOperatorNode(OperatorNode):
             node.semantic_check()
 
 
+class ConditionalOperatorNode(OperatorNode):
+    condition_expression_node: "ExpressionNode"
+    if_operator: "OperatorNode"
+    else_operator: "OperatorNode" | None
+
+    def set_condition_expression_node(self, condition_expression_node):
+        self.condition_expression_node = condition_expression_node
+
+    def set_if_operator(self, if_operator):
+        self.if_operator = if_operator
+
+    def set_else_operator(self, else_operator):
+        self.else_operator = else_operator
+
+    def semantic_check(self) -> None:
+        if self.condition_expression_node.get_variable_type() != VariableType.TYPE_BOOL:
+            self.raise_exception("Выражение условного оператора должно возвращать значение типа \"bool\"")
+        self.condition_expression_node.semantic_check()
+        self.if_operator.semantic_check()
+        if self.else_operator:
+            self.else_operator.semantic_check()
+
+
+class ConditionalLoopOperatorNode(OperatorNode):
+    condition_expression_node: "ExpressionNode"
+    while_operator: "OperatorNode"
+
+    def set_condition_expression_node(self, condition_expression_node):
+        self.condition_expression_node = condition_expression_node
+
+    def set_while_operator(self, while_operator):
+        self.while_operator = while_operator
+
+    def semantic_check(self) -> None:
+        if self.condition_expression_node.get_variable_type() != VariableType.TYPE_BOOL:
+            self.raise_exception("Выражение оператора условного цикла должно возвращать значение типа \"bool\"")
+        self.condition_expression_node.semantic_check()
+        self.while_operator.semantic_check()
+
+
+class FixedLoopOperatorNode(OperatorNode):
+    assignment_operator_node: "AssignmentOperatorNode"
+    condition_expression_node: "ExpressionNode"
+    step_expression_node: "ExpressionNode"
+    operator_node: "OperatorNode"
+
+    def set_assignment_operator_node(self, assignment_operator_node):
+        self.assignment_operator_node = assignment_operator_node
+
+    def set_condition_expression_node(self, condition_expression_node):
+        self.condition_expression_node = condition_expression_node
+
+    def set_step_expression_node(self, step_expression_node):
+        self.step_expression_node = step_expression_node
+
+    def set_operator_node(self, operator_node):
+        self.operator_node = operator_node
+
+    def semantic_check(self) -> None:
+        if self.condition_expression_node.get_variable_type() != VariableType.TYPE_BOOL:
+            self.raise_exception("Выражение оператора условного цикла должно возвращать значение типа \"bool\"")
+        self.condition_expression_node.semantic_check()
+        self.assignment_operator_node.semantic_check()
+        self.step_expression_node.semantic_check()
+        self.operator_node.semantic_check()
+
+
 class AssignmentOperatorNode(OperatorNode):
     identifier_variable: Variable
-    expression_node: type["ExpressionNode"]
+    expression_node: "ExpressionNode"
 
     def set_identifier(self, identifier_lexeme: Lexeme):
+        if not self.tree.check_variable_exists(identifier_lexeme.lexeme_value):
+            self.raise_exception("Неизвестная переменная!")
         self.identifier_variable = self.tree.get_variable(identifier_lexeme.lexeme_value)
 
-    def set_expression_node(self, expression_node: type["ExpressionNode"]):
+    def set_expression_node(self, expression_node: "ExpressionNode"):
         self.expression_node = expression_node
 
-    def semantic_check(self) -> bool:
-        return self.identifier_variable.variable_type == self.expression_node.get_variable_type()
+    def semantic_check(self):
+        if self.identifier_variable.variable_type != self.expression_node.get_variable_type():
+            self.raise_exception("Несоответствие типов переменной и значения выражения")
+        self.expression_node.semantic_check()
 
 
 class ExpressionNode(Node):
-    operand_nodes: list[type["OperandNode"]]
+    operand_nodes: list["OperandNode"]
     operation_lexemes: list[Lexeme]
 
-    def add_operand_node(self, operand_node: type["OperandNode"]):
+    def add_operand_node(self, operand_node: "OperandNode"):
         self.operand_nodes.append(operand_node)
 
     def add_operation_lexeme(self, operation_lexeme: Lexeme):
         self.operation_lexemes.append(operation_lexeme)
 
     def get_variable_type(self):
-        return self.operand_nodes[0].get_variable_type()
+        if len(self.operand_nodes) == 1:
+            return self.operand_nodes[0].get_variable_type()
+        else:
+            return VariableType.TYPE_BOOL
 
     def semantic_check(self):
         for i in range(len(self.operation_lexemes)):
@@ -122,10 +197,10 @@ class ExpressionNode(Node):
 
 
 class OperandNode(Node):
-    term_nodes: list[type["TermNode"]]
+    term_nodes: list["TermNode"]
     operation_lexemes: list[Lexeme]
 
-    def add_term_node(self, term_node: type["TermNode"]):
+    def add_term_node(self, term_node: "TermNode"):
         self.term_nodes.append(term_node)
 
     def add_operation_lexeme(self, operation_lexeme: Lexeme):
@@ -163,10 +238,10 @@ class OperandNode(Node):
 
 
 class TermNode(Node):
-    factor_nodes: list[type["FactorNode"]]
+    factor_nodes: list["FactorNode"]
     operation_lexemes: list[Lexeme]
 
-    def add_factor_node(self, term_node: type["FactorNode"]):
+    def add_factor_node(self, term_node: "FactorNode"):
         self.factor_nodes.append(term_node)
 
     def add_operation_lexeme(self, operation_lexeme: Lexeme):
@@ -204,32 +279,36 @@ class TermNode(Node):
 
 
 class FactorNode(Node):
-    value: Variable | type["UnaryOperationNode"] | type["ExpressionNode"]
+    value: Variable | "UnaryOperationNode" | "ExpressionNode" | bool
 
-    def set_value(self, value: Lexeme | type["UnaryOperationNode"] | type["ExpressionNode"]):
+    def set_value(self, value: Lexeme | "UnaryOperationNode" | "ExpressionNode"):
         if isinstance(value, Lexeme):
-            if self.tree.check_variable_exists(value.lexeme_value):
-                self.value = self.tree.get_variable(value.lexeme_value)
+            if value.lexeme_type in [LexemeType.K_TRUE, LexemeType.K_FALSE]:
+                self.value = value.lexeme_type == LexemeType.K_TRUE
             else:
-                self.raise_exception("Неизвестная переменная!", value)
+                if self.tree.check_variable_exists(value.lexeme_value):
+                    self.value = self.tree.get_variable(value.lexeme_value)
+                else:
+                    self.raise_exception("Неизвестная переменная!", value)
         else:
             self.value = value
 
     def get_variable_type(self):
         if isinstance(self.value, Variable):
             return self.value.variable_type
+        if isinstance(self.value, bool):
+            return VariableType.TYPE_BOOL
         return self.value.get_variable_type()
 
-
     def semantic_check(self):
-        if not isinstance(self.value, Variable):
+        if isinstance(self.value, ExpressionNode) or isinstance(self.value, UnaryOperationNode):
             self.value.semantic_check()
 
 
 class UnaryOperationNode(Node):
-    value: type["FactorNode"]
+    value: "FactorNode"
 
-    def set_value(self, value: type["FactorNode"]):
+    def set_value(self, value: "FactorNode"):
         self.value = value
 
     def semantic_check(self) -> None:
@@ -237,7 +316,35 @@ class UnaryOperationNode(Node):
             self.raise_exception(
                 "Операция \"!\" поддерживается только для операнда типа \"bool\"",
             )
+        self.value.semantic_check()
 
+    def get_variable_type(self):
+        return self.value.get_variable_type()
+
+
+class WriteOperationNode(Node):
+    value: "FactorNode"
+
+    def set_value(self, value: "FactorNode"):
+        self.value = value
+
+    def semantic_check(self) -> None:
+        pass
+
+    def get_variable_type(self):
+        return self.value.get_variable_type()
+
+class ReadOperationNode(Node):
+    value: "FactorNode"
+
+    def set_value(self, value: "FactorNode"):
+        self.value = value
+
+    def semantic_check(self) -> None:
+        pass
+
+    def get_variable_type(self):
+        return self.value.get_variable_type()
 
 
 class AbstractSyntaxTree:
