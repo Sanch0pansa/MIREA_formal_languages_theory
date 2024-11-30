@@ -1,10 +1,18 @@
-program var int a, b, c, d; float k, l, m, n; bool h; int u begin
-a := b + b + (a * c) + b + (0);
-if (a == b) begin
-    c := 78;
-    b := 90
-end;
+program
+    var
+        int i, j
 begin
-    a := 89
-end
+    begin
+        for i := 1 to 9 step i + 2
+            begin
+                readln i, j
+            end
+        next;
+
+        for j := 1 to 5
+            begin
+                writeln j / 9.0
+            end
+        next
+    end
 end
