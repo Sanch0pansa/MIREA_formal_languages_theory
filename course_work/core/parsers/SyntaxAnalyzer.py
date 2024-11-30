@@ -22,7 +22,7 @@ from course_work.core.models.AbstractSyntaxTree import (
     FixedLoopOperatorNode,
     WriteOperationNode,
     ReadOperationNode,
-    ExpressionNode,
+    ExpressionNode, TermNode, OperandNode, FactorNode, UnaryOperationNode,
 
 )
 
@@ -120,6 +120,8 @@ class SyntaxAnalyzer:
         else:
             self.raise_exception("Неверное завершение программы!")
 
+        return program_node
+
     def func_description(self):
         description_node = DescriptionNode(
             self.AST,
@@ -181,7 +183,7 @@ class SyntaxAnalyzer:
             composite_operator_node.add_operator_node(self.func_operator())
 
         if self.check_current_lexeme(LexemeType.K_END):
-            pass
+            self.read_next_lexeme()
         else:
             self.raise_exception("Неверное завершение составного оператора!")
 
@@ -241,7 +243,7 @@ class SyntaxAnalyzer:
         fixed_loop_operator_node.set_condition_expression_node(self.func_expression())
         if self.check_current_lexeme(LexemeType.K_STEP):
             self.read_next_lexeme()
-            fixed_loop_operator_node.set_condition_expression_node(self.func_expression())
+            fixed_loop_operator_node.set_step_expression_node(self.func_expression())
         fixed_loop_operator_node.set_operator_node(self.func_operator())
         if not self.check_current_lexeme(LexemeType.K_NEXT):
             self.raise_exception("Неверное завершение оператора фиксированного цикла!")
@@ -280,6 +282,7 @@ class SyntaxAnalyzer:
             self.raise_exception(f"Неверное начало оператора ввода!")
 
         if self.check_current_lexeme(LexemeType.IDENTIFIER):
+            read_operator_node.add_variable(self.current_lexeme)
             self.read_next_lexeme()
         else:
             self.raise_exception("Оператор ввода должен принимать идентификаторы!")
@@ -287,25 +290,38 @@ class SyntaxAnalyzer:
         while self.check_current_lexeme(LexemeType.LIM_COMMA):
             self.read_next_lexeme()
             if self.check_current_lexeme(LexemeType.IDENTIFIER):
+                read_operator_node.add_variable(self.current_lexeme)
                 self.read_next_lexeme()
             else:
                 self.raise_exception("Оператор ввода должен принимать идентификаторы!")
 
+        return read_operator_node
+
 
     def func_write(self):
+        write_operator_node = WriteOperationNode(
+            self.AST,
+            self.current_lexeme
+        )
         if self.check_current_lexeme(LexemeType.K_WRITELN):
             self.read_next_lexeme()
         else:
             self.raise_exception(f"Неверное начало оператора вывода!")
 
-        self.func_expression()
+        write_operator_node.add_expression_node(self.func_expression())
 
         while self.check_current_lexeme(LexemeType.LIM_COMMA):
             self.read_next_lexeme()
-            self.func_expression()
+            write_operator_node.add_expression_node(self.func_expression())
+
+        return write_operator_node
 
     def func_expression(self):
-        self.func_operand()
+        expression_node = ExpressionNode(
+            self.AST,
+            self.current_lexeme
+        )
+        expression_node.add_operand_node(self.func_operand())
         while self.check_current_lexeme(
                 LexemeType.LIM_EQ,
                 LexemeType.LIM_NE,
@@ -313,47 +329,77 @@ class SyntaxAnalyzer:
                 LexemeType.LIM_GTE,
                 LexemeType.LIM_LT,
                 LexemeType.LIM_LTE):
+            expression_node.add_operation_lexeme(self.current_lexeme)
             self.read_next_lexeme()
-            self.func_operand()
+            expression_node.add_operand_node(self.func_operand())
+
+        return expression_node
 
     def func_operand(self):
-        self.func_term()
+        operand_node = OperandNode(
+            self.AST,
+            self.current_lexeme
+        )
+        operand_node.add_term_node(self.func_term())
         while self.check_current_lexeme(
                 LexemeType.LIM_PLUS,
                 LexemeType.LIM_OR,
                 LexemeType.LIM_MINUS):
+            operand_node.add_operation_lexeme(self.current_lexeme)
             self.read_next_lexeme()
-            self.func_term()
+            operand_node.add_term_node(self.func_term())
+
+        return operand_node
 
     def func_term(self):
-        self.func_factor()
+        term_node = TermNode(
+            self.AST,
+            self.current_lexeme
+        )
+        term_node.add_factor_node(self.func_factor())
         while self.check_current_lexeme(
                 LexemeType.LIM_MUL,
                 LexemeType.LIM_DIV,
                 LexemeType.LIM_AND):
+            term_node.add_operation_lexeme(self.current_lexeme)
             self.read_next_lexeme()
-            self.func_factor()
+            term_node.add_factor_node(self.func_factor())
+
+        return term_node
 
     def func_factor(self):
+        factor_node = FactorNode(
+            self.AST,
+            self.current_lexeme
+        )
         if self.check_current_lexeme(LexemeType.IDENTIFIER):
+            factor_node.set_value(self.current_lexeme)
             self.read_next_lexeme()
         elif self.check_current_lexeme(LexemeType.NUMBER):
+            factor_node.set_value(self.current_lexeme)
             self.read_next_lexeme()
         elif self.check_current_lexeme(LexemeType.K_FALSE, LexemeType.K_TRUE):
+            factor_node.set_value(self.current_lexeme)
             self.read_next_lexeme()
         elif self.check_current_lexeme(LexemeType.LIM_NOT):
+            unary_operation_node = UnaryOperationNode(
+                self.AST,
+                self.current_lexeme
+            )
             self.read_next_lexeme()
-            self.func_factor()
+            unary_operation_node.set_value(self.func_factor())
         elif self.check_current_lexeme(LexemeType.LIM_OPEN_PAREN):
             self.read_next_lexeme()
-            self.func_expression()
+            factor_node.set_value(self.func_expression())
             if not self.check_current_lexeme(LexemeType.LIM_CLOSE_PAREN):
                 self.raise_exception("Открытая скобка в выражении должна быть закрыта!")
             self.read_next_lexeme()
         else:
             self.raise_exception("Неверный синтаксис множителя!")
 
+        return factor_node
+
     # Main parsing entrypoint
     def parse(self):
         self.read_next_lexeme()
-        self.func_program()
+        self.AST.root = self.func_program()
