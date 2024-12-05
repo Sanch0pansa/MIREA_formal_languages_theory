@@ -1,18 +1,12 @@
 program
     var
-        int i, j
+        int i, j;
+        bool k
 begin
-    begin
-        for i := 1 to 9 step i + 2
-            begin
-                readln i, j
-            end
-        next;
-
-        for j := 1 to 5
-            begin
-                writeln j / 9.0
-            end
-        next
-    end
+    for i := 1 to 9 step i + 2
+        begin
+            j := 9
+        end
+    next;
+    i := 9
 end
