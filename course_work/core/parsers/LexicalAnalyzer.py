@@ -25,7 +25,7 @@ class LexicalAnalyzer(FiniteStateMachine):
         token = self.accumulator
         self.lexical_table.add_number(token)
         self.lexical_chain.add_lexeme(
-            self.lexical_table.get_lexeme_tuple(token, self.pointer - len(token))
+            self.lexical_table.get_lexeme_tuple(token, self.pointer - len(token) - 1)
         )
         self.accumulator = ""
 
@@ -41,6 +41,6 @@ class LexicalAnalyzer(FiniteStateMachine):
         if not self.lexical_table.check_identifier_is_keyword(token):
             self.lexical_table.add_identifier(token)
         self.lexical_chain.add_lexeme(
-            self.lexical_table.get_lexeme_tuple(token, self.pointer - len(token))
+            self.lexical_table.get_lexeme_tuple(token, self.pointer - len(token) - 1)
         )
         self.accumulator = ""
