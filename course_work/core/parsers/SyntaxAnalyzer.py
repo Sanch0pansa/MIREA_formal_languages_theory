@@ -11,7 +11,7 @@ from course_work.core.data.LexicalChain import (
     LexicalChain,
 )
 
-from course_work.core.models.AbstractSyntaxTree import (
+from course_work.core.models.AbstractSyntaxTree2 import (
     AbstractSyntaxTree,
     ProgramNode,
     DescriptionNode,
@@ -22,8 +22,11 @@ from course_work.core.models.AbstractSyntaxTree import (
     FixedLoopOperatorNode,
     WriteOperationNode,
     ReadOperationNode,
-    ExpressionNode, TermNode, OperandNode, FactorNode, UnaryOperationNode,
-
+    ExpressionNode,
+    TermNode,
+    OperandNode,
+    FactorNode,
+    UnaryOperationNode,
 )
 
 

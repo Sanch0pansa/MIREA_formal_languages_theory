@@ -324,7 +324,8 @@ class OperandNode(Node):
             operation_lexeme_type = self.operation_lexemes[i].lexeme_type
             type_equals = self.term_nodes[i].get_variable_type() == self.term_nodes[i + 1].get_variable_type()
             if not type_equals:
-                self.raise_exception("Типы операндов операций \"+\", \"-\", \"||\" должны совпадать")
+                self.raise_exception("Типы операндов операций \"+\", \"-\", \"||\" должны совпадать",
+                                     self.operation_lexemes[i])
             operand_type = self.term_nodes[i].get_variable_type()
             if operation_lexeme_type in [
                 LexemeType.LIM_PLUS,
