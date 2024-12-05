@@ -13,8 +13,13 @@
     "\\|": ["OR", "acc", true],
     "!": ["EQ", "acc", true],
     "\\s": ["IN", "no_command", true],
-    "\\{|\\}|\\[|\\]|\\(|\\)|\\;|\\,|\\/|\\+|\\-|\\*": ["IN", "acc,add_limiter", true],
+    "\\}|\\[|\\]|\\(|\\)|\\;|\\,|\\/|\\+|\\-|\\*": ["IN", "acc,add_limiter", true],
+    "\\{": ["COMMENT", "no_command", true],
     ".": ["ERR", "error", false, "Неверный символ: $s!"]
+  },
+  "COMMENT": {
+    "\\}": ["IN", "no_command", true],
+    ".": ["COMMENT", "no_command", true]
   },
   "ID": {
     "[a-zA-Z0-9]": ["ID", "acc", true],
