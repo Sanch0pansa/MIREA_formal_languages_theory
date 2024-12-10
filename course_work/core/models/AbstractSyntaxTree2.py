@@ -395,7 +395,7 @@ class TermNode(OperationsNode):
 
 
 class FactorNode(Node):
-    value: Union["Variable", "UnaryOperationNode", "ExpressionNode", bool, float, int]
+    value: Union["Variable", "UnaryOperationNode", "ExpressionNode", bool, float, str]
 
     def set_value(self, value: Union[Lexeme, "UnaryOperationNode", "ExpressionNode"]):
         if isinstance(value, Lexeme):
