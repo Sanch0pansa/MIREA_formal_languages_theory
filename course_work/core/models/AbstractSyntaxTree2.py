@@ -405,7 +405,7 @@ class FactorNode(Node):
                 if "." in value.lexeme_value or "e" in value.lexeme_value:
                     self.value = float(value.lexeme_value)
                 else:
-                    self.value = int(value.lexeme_value)
+                    self.value = str(value.lexeme_value)
             else:
                 if self.tree.check_variable_exists(value.lexeme_value):
                     self.value = self.tree.get_variable(value.lexeme_value)
@@ -421,7 +421,7 @@ class FactorNode(Node):
             return VariableType.TYPE_BOOL
         if isinstance(self.value, float):
             return VariableType.TYPE_FLOAT
-        if isinstance(self.value, int):
+        if isinstance(self.value, str):
             return VariableType.TYPE_INT
         return self.value.get_value_type()
 

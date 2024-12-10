@@ -123,6 +123,13 @@ class SyntaxAnalyzer:
         else:
             self.raise_exception("Неверное завершение программы!")
 
+        self.read_next_lexeme()
+
+        if self.check_current_lexeme(LexemeType.LIM_END):
+            pass
+        else:
+            self.raise_exception("Неверное завершение программы!")
+
         return program_node
 
     def func_description(self):

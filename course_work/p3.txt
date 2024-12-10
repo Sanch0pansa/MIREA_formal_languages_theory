@@ -1,0 +1,8 @@
+program
+    var
+        int i, j;
+        bool k;
+        int a
+begin
+    a := 10101010b
+end

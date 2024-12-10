@@ -1,4 +1,7 @@
+import math
+
 from course_work.core.models.AbstractSyntaxTree2 import ASTException
+from course_work.core.models.FiniteStateMachine import FiniteStateMachineException
 from course_work.core.parsers.LexicalAnalyzer import LexicalAnalyzer
 from course_work.core.parsers.SyntaxAnalyzer import SyntaxAnalyzer, SyntaxException
 import json
@@ -7,6 +10,7 @@ from course_work.utils.errors_handler import handle_error
 
 
 """
+Вариант 13 - 21332
 <операции_группы_отношения>:: = != | == | < | <= | > | >=
 <операции_группы_сложения>:: = + | - | ||
 <операции_группы_умножения>:: = * | / | &&
@@ -46,7 +50,7 @@ from course_work.utils.errors_handler import handle_error
 lexical_table = {
     "keywords": ["true", "false", "program", "var", "end", "begin", "int", "float", "bool", "if", "else", "for", "to",
                  "step", "next", "while", "readln", "writeln"],
-    "limiters": ["!=", "==", "<", "<=", ">", ">=", "+", "-", "||", "*", "/", "&&", ",", "!", ";", "(", ")", "[", "]", "{", "}", ":="],
+    "limiters": ["!=", "==", "<", "<=", ">", ">=", "+", "-", "||", "*", "/", "&&", ",", "!", ";", "(", ")", "[", "]", "{", "}", ":=", "@"],
     "numbers": [],
     "identifiers": [],
 }
@@ -54,11 +58,11 @@ lexical_table = {
 
 if __name__ == "__main__":
 
-    with open("./program.txt") as f:
+    with open("./p3.txt") as f:
         original_text = f.read()
         text = original_text.replace("\n", " ") + " "
 
-    with open("./lexical_analyzer/states.json") as f:
+    with open("./lexical_analyzer/states.json", encoding="utf-8") as f:
         states = json.load(f)
 
     m = LexicalAnalyzer(
@@ -68,6 +72,10 @@ if __name__ == "__main__":
     )
 
     m.run()
+
+    print(";\n".join(";    ".join(f"{x[0], x[1]}" for x in m.lexical_chain.chain[i * 8:i * 8 + 8]) for i in range(math.ceil(len(m.lexical_chain.chain) / 8))))
+    print("Identifiers:", m.lexical_table.identifiers)
+    print("Numbers:", m.lexical_table.numbers)
 
     with open("./lexical_analyzer/lexical_chain1.json", "w") as f:
         json.dump(m.lexical_chain.chain, f, indent=4)

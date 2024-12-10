@@ -47,12 +47,13 @@ class LexemeType(Enum):
     LIM_OPEN_CURLY = 37
     LIM_CLOSE_CURLY = 38
     LIM_ASSIGN = 39
+    LIM_END = 40
 
     # Numeric literals
-    NUMBER = 40
+    NUMBER = 41
 
     # Identifiers
-    IDENTIFIER = 41
+    IDENTIFIER = 42
 
 
 # Lexeme table type enum (first number of lexeme, number of table)

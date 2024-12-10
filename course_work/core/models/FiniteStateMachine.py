@@ -61,7 +61,14 @@ class FiniteStateMachine:
 
             # Checking reaching end of string
             if self.pointer == len(self.string):
+                self.handle_finish()
                 self.finished = True
+
+    def handle_finish(self):
+        """
+        Handle a finish
+        """
+        pass
 
     def no_command(self, *args):
         """

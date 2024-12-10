@@ -44,3 +44,8 @@ class LexicalAnalyzer(FiniteStateMachine):
             self.lexical_table.get_lexeme_tuple(token, self.pointer - len(token) - 1)
         )
         self.accumulator = ""
+
+    def handle_finish(self):
+        self.lexical_chain.add_lexeme(
+            self.lexical_table.get_lexeme_tuple("@", self.pointer - 1)
+        )
