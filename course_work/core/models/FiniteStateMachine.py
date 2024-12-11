@@ -1,4 +1,5 @@
 import re
+from typing import Generator
 
 
 class FiniteStateMachineException(Exception):
@@ -10,34 +11,32 @@ class FiniteStateMachineException(Exception):
 
 class FiniteStateMachine:
     def __init__(self,
-                 string: str,
                  states: dict[str, dict[str, list[str | bool | None]]],
+                 symbol_generator: Generator[str, None, None],
                  initial_state: str = "IN",
                  ):
         """
         Initialize finite state machine
 
-        :param string: string to analyze
         :param states: states dictionary {state: {regexp: [next_state, functions, move_pointer, error_text]}}
         :param initial_state: string of initial state
         """
-        self.string = string
         self.state = initial_state
         self.accumulator = ""
         self.pointer = 0
         self.finished = False
         self.states = states
+        self.symbol_generator = symbol_generator
+        self.current_symbol = next(self.symbol_generator)
 
     def handle_symbol(self):
         """
-        Handle a symbol by current pointer
+        Handle a provided symbol
         """
-        # Reading char by pointer
-        c = self.string[self.pointer]
 
         # Searching corresponding regexp
         for state_regexp in self.states[self.state]:
-            if re.fullmatch(state_regexp, c):
+            if re.fullmatch(state_regexp, self.current_symbol):
                 res = self.states[self.state][state_regexp]
                 self.handle_res(res)
                 break
@@ -58,11 +57,12 @@ class FiniteStateMachine:
         # If move pointer is true, doing it
         if res[2]:
             self.pointer += 1
+            self.current_symbol = next(self.symbol_generator)
 
-            # Checking reaching end of string
-            if self.pointer == len(self.string):
-                self.handle_finish()
-                self.finished = True
+        # Checking end state
+        if self.state == "END":
+            self.handle_finish()
+            self.finished = True
 
     def handle_finish(self):
         """
@@ -80,7 +80,7 @@ class FiniteStateMachine:
         """
         Add char to accumulator
         """
-        self.accumulator += self.string[self.pointer]
+        self.accumulator += self.current_symbol
 
     def error(self, error: str):
         """
@@ -90,7 +90,7 @@ class FiniteStateMachine:
         """
 
         compiled_error_message = error.replace(
-            "$s", self.string[self.pointer]
+            "$s", self.current_symbol
         ).replace(
             "$acc", self.accumulator
         )
@@ -100,9 +100,9 @@ class FiniteStateMachine:
             pointer=self.pointer,
         )
 
-    def run(self):
+    def make_step(self):
         """
-        Run finite state machine
+        Make one step and handle one symbol
         """
-        while not self.finished:
+        if not self.finished:
             self.handle_symbol()

@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Union
 from course_work.core.data.variables import Variable, VariableType
 from course_work.core.data.lexemes import LexemeType, Lexeme
 

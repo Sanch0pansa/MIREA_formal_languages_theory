@@ -7,10 +7,6 @@ from course_work.core.data.LexicalTable import (
     LexicalTable,
 )
 
-from course_work.core.data.LexicalChain import (
-    LexicalChain,
-)
-
 from course_work.core.models.AbstractSyntaxTree2 import (
     AbstractSyntaxTree,
     ProgramNode,
@@ -28,6 +24,7 @@ from course_work.core.models.AbstractSyntaxTree2 import (
     FactorNode,
     UnaryOperationNode,
 )
+from course_work.core.parsers.LexicalAnalyzer import LexemeIterator
 
 
 class SyntaxException(Exception):
@@ -39,34 +36,17 @@ class SyntaxException(Exception):
 
 # Syntax parser
 class SyntaxAnalyzer:
-    def __init__(self, lexical_table: LexicalTable, lexical_chain: LexicalChain):
+    def __init__(self, lexical_table: LexicalTable, lexeme_iterator: LexemeIterator):
         self.lexical_table = lexical_table          # LexicalTable object
-        self.lexical_chain = lexical_chain          # LexicalChain object
+        self.lexeme_iterator = lexeme_iterator      # LexemeIterator object
         self.current_lexeme: Lexeme | None = None   # Current lexeme
-        self.stack: list[Lexeme] = []               # Stack of lexemes
         self.AST = AbstractSyntaxTree()
 
     def read_next_lexeme(self):
         """
         Read next lexeme and save it in current lexeme
         """
-        self.current_lexeme = self.lexical_chain.next_lexeme()
-
-    def push_lexeme(self, lexeme: Lexeme):
-        """
-        Pushes lexeme to stack
-
-        :param lexeme: lexeme to save
-        """
-        self.stack.append(lexeme)
-
-    def pop_lexeme(self) -> Lexeme:
-        """
-        Return and delete last lexeme in stack
-
-        :return: Lexeme: last saved lexeme
-        """
-        return self.stack.pop()
+        self.current_lexeme = self.lexeme_iterator.next_lexeme()
 
     def check_current_lexeme(self, *args):
         """

@@ -1,8 +1,0 @@
-program
-    var
-        int i, j;
-        bool k;
-        float a
-begin
-    a := (i + j * (j + i * (7 + 9))) / 67 * (j * k * a)
-end
